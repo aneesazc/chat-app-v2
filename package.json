@@ -5,9 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node backend/dist/index.js",
-    "dev": "nodemon --watch backend/src --exec \"npm run build && node backend/dist/index.js\""
+    "build": "tsc && npm install && prisma generate --schema=./backend/prisma/schema.prisma && npm install --prefix frontend && npm run build --prefix frontend",
+    "dev": "nodemon --watch backend/src --exec \"npm run build && node backend/dist/index.js\"",
+    "start": "node backend/dist/index.js"
   },
   "keywords": [],
   "author": "",
