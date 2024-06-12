@@ -1,4 +1,5 @@
 import prisma from "../db/prisma.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 export const sendMessage = async (req, res) => {
     try {
         const { message } = req.body;
@@ -43,6 +44,10 @@ export const sendMessage = async (req, res) => {
                     },
                 },
             });
+            const receiverSocketId = getReceiverSocketId(receiverId);
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit("newMessage", newMessage);
+            }
             res.status(201).json(newMessage);
         }
         else {
@@ -73,7 +78,7 @@ export const getMessages = async (req, res) => {
             },
         });
         if (!conversation) {
-            return res.status(404).json([]);
+            return res.status(200).json([]);
         }
         else {
             res.status(200).json(conversation.messages);

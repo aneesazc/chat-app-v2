@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req: Request, res: Response) => {
   try {
@@ -50,6 +51,12 @@ export const sendMessage = async (req: Request, res: Response) => {
         },
       });
 
+      const receiverSocketId = getReceiverSocketId(receiverId);
+
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+      }
+
       res.status(201).json(newMessage);
     } else {
       res.status(500).json({ error: "Failed to send message" });
@@ -81,7 +88,7 @@ export const getMessages = async (req: Request, res: Response) => {
     });
 
     if (!conversation) {
-      return res.status(404).json([]);
+      return res.status(200).json([]);
     } else {
       res.status(200).json(conversation.messages);
     }
